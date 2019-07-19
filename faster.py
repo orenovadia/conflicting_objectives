@@ -1,25 +1,20 @@
-from collections import defaultdict
-from itertools import product
-
 from dictionary import read_dictionary
 from timer import timing
 
 
 def all_concatenations_for_length(length, dictionary):
-    words_by_length = defaultdict(list)
-    targets = set()
-    for word in dictionary:
-        n = len(word)
-        if n < length:
-            words_by_length[n].append(word)
-        elif n == length:
-            targets.add(word)
+    wordset = {w for w in dictionary if len(w) < length}
+    possible_targets = [w for w in dictionary if len(w) == length]
 
-    for prefix_length in range(1, length):
-        suffix_length = length - prefix_length
-        for prefix, suffix in product(words_by_length[prefix_length], words_by_length[suffix_length]):
-            if (prefix + suffix) in targets:
-                yield (prefix, suffix, prefix + suffix)
+    for target in possible_targets:
+        for prefix, suffix in _possible_splits(target):
+            if prefix in wordset and suffix in wordset:
+                yield (prefix, suffix, target)
+
+
+def _possible_splits(word):
+    return ((word[:i], word[i:])
+            for i in range(1, len(word) - 1))
 
 
 if __name__ == '__main__':
